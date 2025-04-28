@@ -8,8 +8,8 @@ from config import DB_CONFIG
 app = Flask(__name__)
 
 # Load the saved model and scaler
-model = joblib.load(r"C:\Users\LENOVO\venv\career_predictor\Classifier_model3.pkl")
-scaler = joblib.load(r"C:\Users\LENOVO\venv\career_predictor\scaler3.pkl")
+model = joblib.load('Classifier_model3.pkl')
+scaler = joblib.load("scaler3.pkl")
 
 # Career labels
 career_labels = {
