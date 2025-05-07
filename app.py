@@ -1,3 +1,4 @@
+
 from flask import Flask, request, render_template, redirect, url_for
 import numpy as np
 import pandas as pd
@@ -80,7 +81,7 @@ def predict():
 # ----------------- Student Data Management -------------------
 @app.route('/student_data')
 def student_data():
-    response = supabase.table("student_data").select("*").range(0, 9999).execute()
+    response = supabase.table("student_data").select("*").limit(5000).execute()
     students = response.data
     return render_template('student_data.html', students=students)
 
@@ -114,7 +115,7 @@ def delete_student(student_id):
 # ----------------- Academic Info Management -------------------
 @app.route('/academic_info')
 def academic_info():
-    response = supabase.table("academic_info").select("*").range(0, 9999).execute()
+    response = supabase.table("academic_info").select("*").limit(5000).execute()
     academics = response.data
     return render_template('academic_info.html', academics=academics)
 
@@ -151,7 +152,7 @@ def delete_academic(record_id):
 # ----------------- Subjects Management -------------------
 @app.route('/subjects')
 def subjects():
-    response = supabase.table("subjects").select("*").range(0, 9999).execute()
+    response = supabase.table("subjects").select("*").limit(5000).execute()
     subjects = response.data
     return render_template('subjects.html', subjects=subjects)
 
