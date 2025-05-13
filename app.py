@@ -1,4 +1,3 @@
-
 from flask import Flask, request, render_template, redirect, url_for
 import numpy as np
 import pandas as pd
@@ -41,42 +40,70 @@ def home():
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     if request.method == 'POST':
-        # Collect form data
-        gender = int(request.form['gender'])
-        part_time_job = int(request.form['part_time_job'])
+        # Text-to-numeric mappings
+        gender_map = {'Male': 0, 'Female': 1}
+        job_map = {'No': 0, 'Yes': 1}
+        extra_map = {'No': 0, 'Yes': 1}
+
+        # Collect and convert basic inputs
+        gender = gender_map[request.form['gender']]
+        part_time_job = job_map[request.form['part_time_job']]
         absence_days = int(request.form['absence_days'])
-        extracurricular_activities = int(request.form['extracurricular_activities'])
+        extracurricular_activities = extra_map[request.form['extracurricular_activities']]
         self_study_hours = float(request.form['weekly_self_study_hours'])
-        math = float(request.form['math_score'])
-        history = float(request.form['history_score'])
-        physics = float(request.form['physics_score'])
-        chemistry = float(request.form['chemistry_score'])
-        biology = float(request.form['biology_score'])
-        english = float(request.form['english_score'])
-        geography = float(request.form['geography_score'])
+
+        # Initialize scores with default 0
+        subjects = ['math_score', 'history_score', 'physics_score', 'chemistry_score',
+                    'biology_score', 'english_score', 'geography_score']
+        scores = {subject: 0.0 for subject in subjects}
+
+        # Collect subject scores
+        for key in request.form:
+            if key.startswith("subject_") and key.endswith("_name"):
+                idx = key.split("_")[1]
+                subject_key = request.form[key]  # e.g., 'math_score'
+                score_val = float(request.form.get(f"subject_{idx}_score", 0))
+                scores[subject_key] = score_val
 
         # Calculate average score
-        average_score = (math + history + physics + chemistry + biology + english + geography) / 7
+        average_score = np.mean(list(scores.values()))
 
-        # Arrange input in correct order
-        input_data = pd.DataFrame([[gender, part_time_job, absence_days, extracurricular_activities,
-                                    self_study_hours, math, history, physics, chemistry,
-                                    biology, english, geography, average_score]],
-                                  columns=['gender', 'part_time_job', 'absence_days', 'extracurricular_activities',
-                                           'weekly_self_study_hours', 'math_score', 'history_score',
-                                           'physics_score', 'chemistry_score', 'biology_score',
-                                           'english_score', 'geography_score', 'average_score'])
+        # Prepare input
+        input_data = [
+            gender,
+            part_time_job,
+            absence_days,
+            extracurricular_activities,
+            self_study_hours,
+            scores['math_score'],
+            scores['history_score'],
+            scores['physics_score'],
+            scores['chemistry_score'],
+            scores['biology_score'],
+            scores['english_score'],
+            scores['geography_score'],
+            average_score  # 13th feature
+        ]
+
+        input_df = pd.DataFrame([input_data], columns=[
+            'gender', 'part_time_job', 'absence_days',
+            'extracurricular_activities', 'weekly_self_study_hours',
+            'math_score', 'history_score', 'physics_score',
+            'chemistry_score', 'biology_score', 'english_score',
+            'geography_score', 'average_score'
+        ])
 
         # Scale and predict
-        scaled_input = scaler.transform(input_data)
-        prediction = model.predict(scaled_input)
+        input_scaled = scaler.transform(input_df)
+        prediction = model.predict(input_scaled)[0]
 
-        # Map predicted number to career name
-        career = career_labels.get(prediction[0], "Unknown Career")
+        # Map prediction to career name
+        career = career_labels.get(prediction, "Unknown Career")
 
-        return render_template('index.html', prediction_text=f"Predicted Career: {career}")
+        return render_template('index.html', prediction_text=f'Predicted Career: {career}')
 
     return render_template('index.html')
+
 
 # ----------------- Student Data Management -------------------
 @app.route('/student_data')
