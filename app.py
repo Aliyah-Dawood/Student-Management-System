@@ -21,16 +21,6 @@ career_labels = {
     14: "Designer", 15: "Scientist", 16: "Writer"
 }
 
-# Database connection
-# def get_db_connection():
-#     conn_str = (
-#         f"DRIVER={{{DB_CONFIG['driver']}}};"
-#         f"SERVER={DB_CONFIG['server']};"
-#         f"DATABASE={DB_CONFIG['database']};"
-#         "Trusted_connection=yes;"
-#     )
-#     return pyodbc.connect(conn_str)
-
 # Home page
 @app.route('/')
 def home():
