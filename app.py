@@ -317,6 +317,5 @@ def visualizations():
 
     except Exception as e:
         return f"<h2>Internal Server Error</h2><p>{str(e)}</p>"
-
 if __name__ == "__main__":
     app.run(debug=True)
